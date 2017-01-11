@@ -1,0 +1,24 @@
+security:
+- name: unpriveleged
+  kind: Pod
+  field: .spec.containers[*].securityContext.privileged
+  operator: unset
+  valueType: string
+# - name: unpriveleged
+#   kind: Pod
+#   field: .spec.containers[*].securityContext.runAsUser
+#   operator: notequal
+#   valueType: int
+#   value: 0
+operations:
+- name: app-label
+  kind: Pod
+  field: .metadata.labels.app
+  operator: set
+  valueType: string
+performance:
+- name: limit-set
+  kind: Pod
+  field: .spec.containers[0].resources.requests.cpu
+  operator: set
+  valueType: string
