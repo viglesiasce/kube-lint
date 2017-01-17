@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strconv"
 
 	"k8s.io/client-go/pkg/util/jsonpath"
@@ -71,6 +72,9 @@ func (lr KubernetesRule) Evaluate(resource []byte) Result {
 		passed = out != ""
 	case "unset":
 		passed = out == ""
+	case "matches":
+		regex := regexp.MustCompile(lr.Value.(string))
+		passed = regex.MatchString(out)
 	default:
 		panic("Operator not implemented: " + lr.Operator)
 	}

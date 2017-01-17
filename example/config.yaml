@@ -12,6 +12,13 @@ operations:
   field: .metadata.labels.app
   operator: set
   valueType: string
+- name: name-regex
+  description: Includes a name with cd-
+  kind: Pod
+  field: .metadata.name
+  operator: matches
+  value: "cd-.*"
+  valueType: string
 performance:
 - name: limit-set
   description: Has resource requests set
