@@ -11,7 +11,7 @@ import (
 
 //
 type Rule interface {
-	Evaluate(resource string) Result
+	Evaluate(resource []byte) Result
 	GetName() string
 }
 
@@ -24,22 +24,23 @@ type Result struct {
 
 //
 type Operator interface {
-	Evaluate(resource string, field string)
+	Evaluate(resource []byte, field string)
 }
 
 // Represents a single policy for the linting of a resource
 type KubernetesRule struct {
-	Name      string      `json:"name"`
-	Operator  string      `json:"operator"`
-	Field     string      `json:"field"`
-	Value     interface{} `json:"value"`
-	ValueType string      `json:"valueType"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Operator    string      `json:"operator"`
+	Field       string      `json:"field"`
+	Value       interface{} `json:"value"`
+	ValueType   string      `json:"valueType"`
 }
 
 type LinterConfig map[string][]KubernetesRule
 
 // Evaluate rule
-func (lr KubernetesRule) Evaluate(resource string) Result {
+func (lr KubernetesRule) Evaluate(resource []byte) Result {
 	j := jsonpath.New(lr.Name)
 	j.AllowMissingKeys(true)
 	// insert brackets for the user so that the YAML gets easier to write
@@ -49,7 +50,7 @@ func (lr KubernetesRule) Evaluate(resource string) Result {
 	}
 	buf := new(bytes.Buffer)
 	var data interface{}
-	err = json.Unmarshal([]byte(resource), &data)
+	err = json.Unmarshal(resource, &data)
 	if err != nil {
 		panic(err)
 	}

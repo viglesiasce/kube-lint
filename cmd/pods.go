@@ -17,18 +17,24 @@ package cmd
 import (
 	"io/ioutil"
 
+	"k8s.io/client-go/pkg/api/v1"
+
+	"fmt"
+	"os"
+
 	"github.com/ghodss/yaml"
 	"github.com/spf13/cobra"
-	"github.com/viglesiasce/kube-lint/pkg/check"
+	"github.com/viglesiasce/kube-lint/pkg/pods"
 	"github.com/viglesiasce/kube-lint/pkg/rules"
 )
 
 var filename string
 var kubeconfig string
+var showAll bool
 
-// checkCmd represents the check command
-var checkCmd = &cobra.Command{
-	Use:   "check",
+// podsCmd represents the pods command
+var podsCmd = &cobra.Command{
+	Use:   "pods",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -48,36 +54,38 @@ to quickly create a Cobra application.`,
 			panic("Unable to unmarshal config file")
 		}
 
-		resourceJSON := ""
+		inputPods := []v1.Pod{}
 		if kubeconfig != "" {
-			resourceJSON = check.GetJSONFromKubernetes(kubeconfig)
+			inputPods = pods.GetPodsFromServer(kubeconfig)
+		} else if filename != "" {
+			inputPods = pods.GetPodsFromFile(filename)
+		} else {
+			panic("Please pass either --filename or --kubeconfig")
 		}
 
-		if filename != "" {
-			resourceJSON = check.GetJSONFromFile(filename)
+		if len(inputPods) == 0 {
+			fmt.Println("NO PODS FOUND")
+			os.Exit(0)
 		}
 
-		if resourceJSON == "" {
-			panic("NO RESOURCE FOUND")
-		}
-
-		table := check.CreateTable()
-		check.EvaluateRules(table, config, resourceJSON)
+		table := pods.CreateTable()
+		pods.EvaluateRules(table, config, inputPods, showAll)
 		table.Render()
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(checkCmd)
+	RootCmd.AddCommand(podsCmd)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// checkCmd.PersistentFlags().String("foo", "", "A help for foo")
-	checkCmd.PersistentFlags().StringVarP(&filename, "filename", "f", "example/pod.yaml", "Filename or directory of manifest(s)")
-	checkCmd.PersistentFlags().StringVar(&kubeconfig, "kubeconfig", "", "Path to the kubeconfig file to use for requests")
+	// podsCmd.PersistentFlags().String("foo", "", "A help for foo")
+	podsCmd.PersistentFlags().StringVarP(&filename, "filename", "f", "example/pod.yaml", "Filename or directory of manifest(s)")
+	podsCmd.PersistentFlags().StringVar(&kubeconfig, "kubeconfig", "", "Path to the kubeconfig file to use for requests")
+	podsCmd.PersistentFlags().BoolVar(&showAll, "show-all", false, "Show passing rules and failing rules")
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// checkCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// podsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
 }

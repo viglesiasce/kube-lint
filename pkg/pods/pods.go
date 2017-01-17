@@ -1,4 +1,4 @@
-package check
+package pods
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-func GetJSONFromKubernetes(kubeconfig string) string {
+func GetPodsFromServer(kubeconfig string) []v1.Pod {
 	// TODO Make this take a reader interface or the like
 	k8sClientConfig, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
@@ -29,17 +29,10 @@ func GetJSONFromKubernetes(kubeconfig string) string {
 	if err != nil {
 		panic(err.Error())
 	}
-	var resourceJSONBytes []byte
-	for _, pod := range pods.Items {
-		resourceJSONBytes, err = json.Marshal(pod)
-		if err != nil {
-			panic("Unable to convert resource to JSON")
-		}
-	}
-	return string(resourceJSONBytes)
+	return pods.Items
 }
 
-func GetJSONFromFile(filename string) string {
+func GetPodsFromFile(filename string) []v1.Pod {
 	resourceFile, err := ioutil.ReadFile(filename)
 
 	if err != nil {
@@ -50,13 +43,20 @@ func GetJSONFromFile(filename string) string {
 	if err != nil {
 		panic("Unable to convert resource to JSON")
 	}
-	return string(resourceJSONBytes)
+
+	if err != nil {
+		panic("Unable to Unmarshal json")
+	}
+	pod := v1.Pod{}
+	err = json.Unmarshal(resourceJSONBytes, &pod)
+	pods := []v1.Pod{pod}
+	return pods
 }
 
 func CreateTable() *tablewriter.Table {
 	table := tablewriter.NewWriter(os.Stdout)
 	//  "PROFILE", "OPERATOR", "EXPECTED", "ACTUAL",
-	table.SetHeader([]string{"RULE", "POD", "RESULT"})
+	table.SetHeader([]string{"POD", "DESCRIPTION", "RESULT"})
 	table.SetHeaderLine(false)
 	table.SetBorder(false)
 	table.SetCenterSeparator("")
@@ -65,19 +65,30 @@ func CreateTable() *tablewriter.Table {
 	return table
 }
 
-func EvaluateRules(table *tablewriter.Table, config rules.LinterConfig, resourceJSON string) {
-	for _, value := range config {
-		for _, rule := range value {
-			k8sRule := rules.NewKubernetesRule(rule.Operator, rule.Field, rule.Value, rule.ValueType)
-			result := k8sRule.Evaluate(resourceJSON)
-			var colorizedResult string
-			if result.Passed {
-				colorizedResult = color.GreenString("passed")
-			} else {
-				colorizedResult = color.RedString("failed")
+func EvaluateRules(table *tablewriter.Table, config rules.LinterConfig, pods []v1.Pod, showAll bool) {
+	for _, pod := range pods {
+		for _, value := range config {
+			for _, rule := range value {
+				k8sRule := rules.NewKubernetesRule(rule.Operator, rule.Field, rule.Value, rule.ValueType)
+				resourceJSON, err := json.Marshal(pod)
+				if err != nil {
+					panic(err)
+				}
+				result := k8sRule.Evaluate(resourceJSON)
+				if err != nil {
+					panic(err)
+				}
+				var colorizedResult string
+				if result.Passed {
+					colorizedResult = color.GreenString("passed")
+					if showAll {
+						table.Append([]string{pod.Name, rule.Description, colorizedResult})
+					}
+				} else {
+					colorizedResult = color.RedString("failed")
+					table.Append([]string{pod.Name, rule.Description, colorizedResult})
+				}
 			}
-			// profile, rule.Operator, result.Expected, result.Actual,
-			table.Append([]string{rule.Name, "podname", colorizedResult})
 		}
 	}
 }
