@@ -36,7 +36,7 @@ func GetPodsFromFile(filename string) []v1.Pod {
 	resourceFile, err := ioutil.ReadFile(filename)
 
 	if err != nil {
-		panic("Unable to read config file")
+		panic("Unable to read pod file")
 	}
 
 	resourceJSONBytes, err := yaml.YAMLToJSON(resourceFile)
