@@ -16,14 +16,15 @@ package cmd
 
 import (
 	"io/ioutil"
-	"os"
 
-	"github.com/fatih/color"
 	"github.com/ghodss/yaml"
-	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
+	"github.com/viglesiasce/kube-lint/pkg/check"
 	"github.com/viglesiasce/kube-lint/pkg/rules"
 )
+
+var filename string
+var kubeconfig string
 
 // checkCmd represents the check command
 var checkCmd = &cobra.Command{
@@ -36,29 +37,9 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// load yaml file
+		// load config
 		var config rules.LinterConfig
 		configFile, err := ioutil.ReadFile("example/config.yaml")
-		if err != nil {
-			panic("Unable to read config file")
-		}
-		// TODO Make this take a reader interface or the like
-		// k8sClientConfig, err := clientcmd.BuildConfigFromFlags("", "/Users/viglesias/.kube/config")
-		// if err != nil {
-		// 	panic(err.Error())
-		// }
-		// clientset, err := kubernetes.NewForConfig(k8sClientConfig)
-		// if err != nil {
-		// 	panic(err.Error())
-		// }
-
-		// pods, err := clientset.Core().Pods("").List(v1.ListOptions{})
-		// if err != nil {
-		// 	panic(err.Error())
-		// }
-
-		resourceFile, err := ioutil.ReadFile("example/pod.yaml")
-
 		if err != nil {
 			panic("Unable to read config file")
 		}
@@ -66,42 +47,22 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			panic("Unable to unmarshal config file")
 		}
-		resourceJSONBytes, err := yaml.YAMLToJSON(resourceFile)
-		resourceJSON := string(resourceJSONBytes)
-		if err != nil {
-			panic("Unable to convert resource to JSON")
-		}
-		table := tablewriter.NewWriter(os.Stdout)
-		//  "PROFILE", "OPERATOR", "EXPECTED", "ACTUAL",
-		table.SetHeader([]string{"RULE", "POD", "RESULT"})
-		table.SetHeaderLine(false)
-		table.SetBorder(false)
-		table.SetCenterSeparator("")
-		table.SetColumnSeparator("")
-		table.SetRowSeparator("")
-		//for _, pod := range pods.Items {
-		//resourceJSONBytes, err := json.Marshal(pod)
-		// if err != nil {
-		// 	panic("Unable to convert resource to JSON")
-		// }
-		// resourceJSON := string(resourceJSONBytes)
 
-		for _, value := range config {
-			for _, rule := range value {
-				k8sRule := rules.NewKubernetesRule(rule.Operator, rule.Field, rule.Value, rule.ValueType)
-				result := k8sRule.Evaluate(resourceJSON)
-				var colorizedResult string
-				if result.Passed {
-					colorizedResult = color.GreenString("passed")
-				} else {
-					colorizedResult = color.RedString("failed")
-				}
-				// profile, rule.Operator, result.Expected, result.Actual,
-				table.Append([]string{rule.Name, "podname", colorizedResult})
-			}
+		resourceJSON := ""
+		if kubeconfig != "" {
+			resourceJSON = check.GetJSONFromKubernetes(kubeconfig)
 		}
 
-		//}
+		if filename != "" {
+			resourceJSON = check.GetJSONFromFile(filename)
+		}
+
+		if resourceJSON == "" {
+			panic("NO RESOURCE FOUND")
+		}
+
+		table := check.CreateTable()
+		check.EvaluateRules(table, config, resourceJSON)
 		table.Render()
 	},
 }
@@ -110,11 +71,11 @@ func init() {
 	RootCmd.AddCommand(checkCmd)
 
 	// Here you will define your flags and configuration settings.
-
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 	// checkCmd.PersistentFlags().String("foo", "", "A help for foo")
-
+	checkCmd.PersistentFlags().StringVarP(&filename, "filename", "f", "example/pod.yaml", "Filename or directory of manifest(s)")
+	checkCmd.PersistentFlags().StringVar(&kubeconfig, "kubeconfig", "", "Path to the kubeconfig file to use for requests")
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// checkCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
