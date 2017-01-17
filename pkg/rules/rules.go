@@ -32,6 +32,7 @@ type Operator interface {
 type KubernetesRule struct {
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
+	Kind        string      `json:"kind"`
 	Operator    string      `json:"operator"`
 	Field       string      `json:"field"`
 	Value       interface{} `json:"value"`

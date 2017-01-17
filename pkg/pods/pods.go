@@ -69,6 +69,10 @@ func EvaluateRules(table *tablewriter.Table, config rules.LinterConfig, pods []v
 	for _, pod := range pods {
 		for _, value := range config {
 			for _, rule := range value {
+				// TODO need to be able to provide a list of resources to test against
+				if rule.Kind != "Pod" && rule.Kind != "" {
+					continue
+				}
 				k8sRule := rules.NewKubernetesRule(rule.Operator, rule.Field, rule.Value, rule.ValueType)
 				resourceJSON, err := json.Marshal(pod)
 				if err != nil {
