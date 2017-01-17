@@ -35,13 +35,8 @@ var showAll bool
 // podsCmd represents the pods command
 var podsCmd = &cobra.Command{
 	Use:   "pods",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Evaluate rules for pods",
+	Long:  `Evaluate all rules marked as kind "Pod"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// load config
 		var config rules.LinterConfig
@@ -76,16 +71,7 @@ to quickly create a Cobra application.`,
 
 func init() {
 	RootCmd.AddCommand(podsCmd)
-
-	// Here you will define your flags and configuration settings.
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// podsCmd.PersistentFlags().String("foo", "", "A help for foo")
 	podsCmd.PersistentFlags().StringVarP(&filename, "filename", "f", "example/pod.yaml", "Filename or directory of manifest(s)")
 	podsCmd.PersistentFlags().StringVar(&kubeconfig, "kubeconfig", "", "Path to the kubeconfig file to use for requests")
 	podsCmd.PersistentFlags().BoolVar(&showAll, "show-all", false, "Show passing rules and failing rules")
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// podsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }
