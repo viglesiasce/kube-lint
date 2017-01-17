@@ -24,7 +24,7 @@ func TestGetPodsFromServer(t *testing.T) {
 		want []v1.Pod
 	}{}
 	for _, tt := range tests {
-		if got := GetPodsFromServer(tt.args.kubeconfig); !reflect.DeepEqual(got, tt.want) {
+		if got := NewKubeServer(tt.args.kubeconfig).GetPods(); !reflect.DeepEqual(got, tt.want) {
 			t.Errorf("%q. GetPodsFromServer() = %v, want %v", tt.name, got, tt.want)
 		}
 	}
@@ -56,7 +56,7 @@ func TestGetPodsFromFile(t *testing.T) {
 		{"Example file", args{filename: examplePodFile}, []v1.Pod{examplePod}},
 	}
 	for _, tt := range tests {
-		if got := GetPodsFromFile(tt.args.filename); !reflect.DeepEqual(got, tt.want) {
+		if got := NewLocalFilesystem(tt.args.filename).GetPods(); !reflect.DeepEqual(got, tt.want) {
 			t.Errorf("%q. GetPodsFromFile() = %v, want %v", tt.name, got, tt.want)
 		}
 	}

@@ -14,9 +14,20 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-func GetPodsFromServer(kubeconfig string) []v1.Pod {
-	// TODO Make this take a reader interface or the like
-	k8sClientConfig, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+type PodList interface {
+	GetPods() []v1.Pod
+}
+
+type KubeServer struct {
+	kubeconfig string
+}
+
+func NewKubeServer(kubeconfig string) KubeServer {
+	return KubeServer{kubeconfig: kubeconfig}
+}
+
+func (ks KubeServer) GetPods() []v1.Pod {
+	k8sClientConfig, err := clientcmd.BuildConfigFromFlags("", ks.kubeconfig)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -32,8 +43,16 @@ func GetPodsFromServer(kubeconfig string) []v1.Pod {
 	return pods.Items
 }
 
-func GetPodsFromFile(filename string) []v1.Pod {
-	resourceFile, err := ioutil.ReadFile(filename)
+type LocalFilesystem struct {
+	path string
+}
+
+func NewLocalFilesystem(path string) LocalFilesystem {
+	return LocalFilesystem{path: path}
+}
+
+func (lfs LocalFilesystem) GetPods() []v1.Pod {
+	resourceFile, err := ioutil.ReadFile(lfs.path)
 
 	if err != nil {
 		panic("Unable to read pod file")
@@ -65,7 +84,8 @@ func CreateTable() *tablewriter.Table {
 	return table
 }
 
-func EvaluateRules(table *tablewriter.Table, config rules.LinterConfig, pods []v1.Pod, showAll bool) {
+func EvaluateRules(config rules.LinterConfig, pods []v1.Pod, showAll bool) {
+	table := CreateTable()
 	for _, pod := range pods {
 		for _, value := range config {
 			for _, rule := range value {
@@ -84,8 +104,8 @@ func EvaluateRules(table *tablewriter.Table, config rules.LinterConfig, pods []v
 				}
 				var colorizedResult string
 				if result.Passed {
-					colorizedResult = color.GreenString("passed")
 					if showAll {
+						colorizedResult = color.GreenString("passed")
 						table.Append([]string{pod.Name, rule.Description, colorizedResult})
 					}
 				} else {
@@ -95,4 +115,5 @@ func EvaluateRules(table *tablewriter.Table, config rules.LinterConfig, pods []v
 			}
 		}
 	}
+	table.Render()
 }

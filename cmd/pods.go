@@ -51,21 +51,19 @@ var podsCmd = &cobra.Command{
 
 		inputPods := []v1.Pod{}
 		if kubeconfig != "" {
-			inputPods = pods.GetPodsFromServer(kubeconfig)
+			inputPods = pods.NewKubeServer(kubeconfig).GetPods()
 		} else if filename != "" {
-			inputPods = pods.GetPodsFromFile(filename)
+			inputPods = pods.NewLocalFilesystem(filename).GetPods()
 		} else {
-			panic("Please pass either --filename or --kubeconfig")
+			fmt.Println("--filename or --kubeconfig required")
+			os.Exit(1)
 		}
 
 		if len(inputPods) == 0 {
 			fmt.Println("NO PODS FOUND")
 			os.Exit(0)
 		}
-
-		table := pods.CreateTable()
-		pods.EvaluateRules(table, config, inputPods, showAll)
-		table.Render()
+		pods.EvaluateRules(config, inputPods, showAll)
 	},
 }
 
