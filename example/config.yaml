@@ -4,7 +4,11 @@ security:
   kind: Pod
   field: .spec.containers[*].securityContext.privileged
   operator: unset
-  valueType: string
+- name: no-host-network
+  description: hostNetwork namespace
+  kind: Pod
+  field: .spec.hostNetwork
+  operator: unset
 operations:
 - name: app-label
   description: Includes a label with key "app"

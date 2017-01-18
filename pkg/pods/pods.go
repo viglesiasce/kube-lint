@@ -26,7 +26,7 @@ func NewKubeServer(kubeconfig string) KubeServer {
 	return KubeServer{kubeconfig: kubeconfig}
 }
 
-func (ks KubeServer) GetPods() []v1.Pod {
+func (ks KubeServer) GetPods(namespace string) []v1.Pod {
 	k8sClientConfig, err := clientcmd.BuildConfigFromFlags("", ks.kubeconfig)
 	if err != nil {
 		panic(err.Error())
@@ -36,7 +36,7 @@ func (ks KubeServer) GetPods() []v1.Pod {
 		panic(err.Error())
 	}
 
-	pods, err := clientset.Core().Pods("").List(v1.ListOptions{})
+	pods, err := clientset.Core().Pods(namespace).List(v1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
 	}
@@ -84,10 +84,20 @@ func CreateTable() *tablewriter.Table {
 	return table
 }
 
-func EvaluateRules(config rules.LinterConfig, pods []v1.Pod, showAll bool) {
+func EvaluateRules(config rules.LinterConfig, pods []v1.Pod, profiles []string, showAll bool) {
 	table := CreateTable()
+	activeProfiles := rules.LinterConfig{}
+	if len(profiles) == 0 {
+		// Evaluate all rules by default
+		activeProfiles = config
+	} else {
+		// Filter out active profiles
+		for _, profile := range profiles {
+			activeProfiles[profile] = config[profile]
+		}
+	}
 	for _, pod := range pods {
-		for _, value := range config {
+		for _, value := range activeProfiles {
 			for _, rule := range value {
 				// TODO need to be able to provide a list of resources to test against
 				if rule.Kind != "Pod" && rule.Kind != "" {
