@@ -31,7 +31,7 @@ import (
 var filename string
 var kubeconfig string
 var namespace string
-var profiles []string
+var tags []string
 var showAll bool
 
 // podsCmd represents the pods command
@@ -65,7 +65,7 @@ var podsCmd = &cobra.Command{
 			fmt.Println("NO PODS FOUND")
 			os.Exit(0)
 		}
-		pods.EvaluateRules(config, inputPods, profiles, showAll)
+		pods.EvaluateRules(config, inputPods, tags, showAll)
 	},
 }
 
@@ -74,6 +74,6 @@ func init() {
 	podsCmd.PersistentFlags().StringVarP(&filename, "filename", "f", "", "Filename or directory of manifest(s)")
 	podsCmd.PersistentFlags().StringVar(&kubeconfig, "kubeconfig", "", "Path to the kubeconfig file to use for requests")
 	podsCmd.PersistentFlags().StringVar(&namespace, "namespace", "", "Namespace to use for requests")
-	podsCmd.PersistentFlags().StringSliceVarP(&profiles, "profiles", "p", []string{}, "Profiles to check against (all by default)")
+	podsCmd.PersistentFlags().StringSliceVarP(&tags, "tags", "t", []string{}, "Tags used to filter rules (all by default)")
 	podsCmd.PersistentFlags().BoolVar(&showAll, "show-all", false, "Show passing rules and failing rules")
 }

@@ -84,44 +84,53 @@ func CreateTable() *tablewriter.Table {
 	return table
 }
 
-func EvaluateRules(config rules.LinterConfig, pods []v1.Pod, profiles []string, showAll bool) {
+func EvaluateRules(config rules.LinterConfig, pods []v1.Pod, tags []string, showAll bool) {
 	table := CreateTable()
-	activeProfiles := rules.LinterConfig{}
-	if len(profiles) == 0 {
+	activeRules := rules.LinterConfig{}
+	if len(tags) == 0 {
 		// Evaluate all rules by default
-		activeProfiles = config
+		activeRules = config
 	} else {
-		// Filter out active profiles
-		for _, profile := range profiles {
-			activeProfiles[profile] = config[profile]
+		// Filter active rules by tag
+		// Currently multiple tags are OR'd
+		// TODO this is probably sub-optimal in more ways than 1
+		// Loop taken from: https://www.goinggo.net/2013/11/label-breaks-in-go.html
+		for _, rule := range config {
+		TagLoop:
+			for _, ruleTag := range rule.Tags {
+				for _, tag := range tags {
+					if ruleTag == tag {
+						activeRules = append(activeRules, rule)
+						break TagLoop
+					}
+				}
+			}
 		}
 	}
 	for _, pod := range pods {
-		for _, value := range activeProfiles {
-			for _, rule := range value {
-				// TODO need to be able to provide a list of resources to test against
-				if rule.Kind != "Pod" && rule.Kind != "" {
-					continue
-				}
-				k8sRule := rules.NewKubernetesRule(rule.Operator, rule.Field, rule.Value, rule.ValueType)
-				resourceJSON, err := json.Marshal(pod)
-				if err != nil {
-					panic(err)
-				}
-				result := k8sRule.Evaluate(resourceJSON)
-				if err != nil {
-					panic(err)
-				}
-				var colorizedResult string
-				if result.Passed {
-					if showAll {
-						colorizedResult = color.GreenString("passed")
-						table.Append([]string{pod.Name, rule.Description, colorizedResult})
-					}
-				} else {
-					colorizedResult = color.RedString("failed")
+		for _, rule := range activeRules {
+			// TODO need to be able to provide a list of resources to test against
+			if rule.Kind != "Pod" && rule.Kind != "" {
+				continue
+			}
+			k8sRule := rules.NewKubernetesRule(rule.Operator, rule.Field, rule.Value, rule.ValueType)
+			resourceJSON, err := json.Marshal(pod)
+			if err != nil {
+				panic(err)
+			}
+			result := k8sRule.Evaluate(resourceJSON)
+			if err != nil {
+				panic(err)
+			}
+			var colorizedResult string
+			if result.Passed {
+				if showAll {
+					colorizedResult = color.GreenString("passed")
 					table.Append([]string{pod.Name, rule.Description, colorizedResult})
 				}
+			} else {
+				colorizedResult = color.RedString("failed")
+				table.Append([]string{pod.Name, rule.Description, colorizedResult})
 			}
 		}
 	}

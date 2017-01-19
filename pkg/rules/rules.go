@@ -34,9 +34,10 @@ type KubernetesRule struct {
 	Field       string      `json:"field"`
 	Value       interface{} `json:"value"`
 	ValueType   string      `json:"valueType"`
+	Tags        []string    `json:"tags"`
 }
 
-type LinterConfig map[string][]KubernetesRule
+type LinterConfig []KubernetesRule
 
 // Evaluate rule
 func (kr KubernetesRule) Evaluate(resource []byte) Result {
