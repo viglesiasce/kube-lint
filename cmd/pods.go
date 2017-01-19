@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"io/ioutil"
+	"os/user"
 
 	"k8s.io/client-go/pkg/api/v1"
 
@@ -29,6 +30,7 @@ import (
 )
 
 var filename string
+var configFile string
 var kubeconfig string
 var namespace string
 var tags []string
@@ -41,8 +43,12 @@ var podsCmd = &cobra.Command{
 	Long:  `Evaluate all rules marked as kind "Pod"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// load config
+		if configFile == "" {
+			fmt.Println("[ERROR] Pass your linter config file using --config or -c")
+			os.Exit(1)
+		}
 		var config rules.LinterConfig
-		configFile, err := ioutil.ReadFile("example/config.yaml")
+		configFile, err := ioutil.ReadFile(configFile)
 		if err != nil {
 			panic("Unable to read config file")
 		}
@@ -57,7 +63,7 @@ var podsCmd = &cobra.Command{
 		} else if filename != "" {
 			inputPods = pods.NewLocalFilesystem(filename).GetPods()
 		} else {
-			fmt.Println("--filename or --kubeconfig required")
+			fmt.Println("[ERROR] --filename or --kubeconfig required")
 			os.Exit(1)
 		}
 
@@ -70,9 +76,16 @@ var podsCmd = &cobra.Command{
 }
 
 func init() {
+	user, err := user.Current()
+	if err != nil {
+		fmt.Println("Unable to determine current user")
+		os.Exit(1)
+	}
+	defaultKubeConfig := fmt.Sprintf("%s/%s", user.HomeDir, ".kube/config")
 	RootCmd.AddCommand(podsCmd)
 	podsCmd.PersistentFlags().StringVarP(&filename, "filename", "f", "", "Filename or directory of manifest(s)")
-	podsCmd.PersistentFlags().StringVar(&kubeconfig, "kubeconfig", "", "Path to the kubeconfig file to use for requests")
+	podsCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "", "Filename of config file with linter rules")
+	podsCmd.PersistentFlags().StringVar(&kubeconfig, "kubeconfig", defaultKubeConfig, "Path to the kubeconfig file to use for requests")
 	podsCmd.PersistentFlags().StringVar(&namespace, "namespace", "", "Namespace to use for requests")
 	podsCmd.PersistentFlags().StringSliceVarP(&tags, "tags", "t", []string{}, "Tags used to filter rules (all by default)")
 	podsCmd.PersistentFlags().BoolVar(&showAll, "show-all", false, "Show passing rules and failing rules")
