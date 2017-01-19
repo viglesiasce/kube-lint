@@ -93,8 +93,7 @@ func EvaluateRules(config rules.LinterConfig, pods []v1.Pod, tags []string, show
 	} else {
 		// Filter active rules by tag
 		// Currently multiple tags are OR'd
-		// TODO this is probably sub-optimal in more ways than 1
-		// Loop taken from: https://www.goinggo.net/2013/11/label-breaks-in-go.html
+		// label break taken from: https://www.goinggo.net/2013/11/label-breaks-in-go.html
 		for _, rule := range config {
 		TagLoop:
 			for _, ruleTag := range rule.Tags {

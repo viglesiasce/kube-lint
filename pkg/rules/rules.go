@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"k8s.io/client-go/pkg/util/jsonpath"
 )
@@ -64,20 +65,49 @@ func (kr KubernetesRule) Evaluate(resource []byte) Result {
 	var out interface{}
 	var actual string
 	switch kr.ValueType {
+	case "float64":
+		var parsedValue float64
+		// TODO what should you do if it is not found?
+		if buf.String() != "" {
+			floats := strings.Fields(buf.String())
+			for _, float := range floats {
+				parsedValue64, err := strconv.ParseFloat(float, 64)
+				if err != nil {
+					panic(err)
+				}
+				parsedValue = parsedValue64
+				out, passed = kr.evaluateAsFloat(parsedValue)
+				if passed {
+					break
+				}
+			}
+			actual = buf.String()
+			value = strconv.FormatFloat(kr.Value.(float64), 'f', 4, 64)
+		}
 	case "bool":
 		parsedValue := false
-		// TODO this is the case where it is unset, what to do?
+		// TODO what should you do if it is not found?
 		if buf.String() != "" {
-			parsedValue, err = strconv.ParseBool(buf.String())
-			if err != nil {
-				panic(err)
+			bools := strings.Fields(buf.String())
+			for _, boolean := range bools {
+				parsedValue, err = strconv.ParseBool(boolean)
+				if err != nil {
+					panic(err)
+				}
+				out, passed = kr.evaluateAsBool(parsedValue)
+				if passed {
+					break
+				}
+
 			}
+			actual = strconv.FormatBool(out.(bool))
+			value = strconv.FormatBool(kr.Value.(bool))
 		}
-		out, passed = kr.evaluateAsBool(parsedValue)
-		actual = strconv.FormatBool(out.(bool))
-		value = strconv.FormatBool(kr.Value.(bool))
+
 	// String is the default type
 	default:
+		// TODO need to figure out what to do with the evaluation of multiple
+		// fields (ie .spec.containers[*].name )
 		out, passed = kr.evaluateAsString(buf.String())
 		actual = out.(string)
 		if kr.Value != nil {
@@ -124,6 +154,29 @@ func (kr KubernetesRule) evaluateAsString(value string) (string, bool) {
 	case "matches":
 		regex := regexp.MustCompile(kr.Value.(string))
 		passed = regex.MatchString(value)
+	default:
+		panic("Operator not implemented for string type: " + kr.Operator)
+	}
+	return value, passed
+}
+
+func (kr KubernetesRule) evaluateAsFloat(value float64) (float64, bool) {
+	var passed bool
+	switch kr.Operator {
+	case "null":
+		passed = true
+	case "equal":
+		passed = value == kr.Value.(float64)
+	case "notequal":
+		passed = value != kr.Value.(float64)
+	case "greaterthan":
+		passed = value > kr.Value.(float64)
+	case "lessthan":
+		passed = value < kr.Value.(float64)
+	case "set":
+		passed = value != 0
+	case "unset":
+		passed = value == 0
 	default:
 		panic("Operator not implemented for string type: " + kr.Operator)
 	}

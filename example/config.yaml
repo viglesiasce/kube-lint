@@ -21,6 +21,16 @@
   tags:
   - operations
   - security
+- name: redis-port
+  description: Uses the redis containerPort
+  kind: Pod
+  field: .spec.containers[*].ports[*].containerPort
+  operator: equal
+  valueType: float64
+  value: 6379
+  tags:
+  - operations
+  - security
 - name: name-regex
   description: Includes a name with cd-
   kind: Pod
