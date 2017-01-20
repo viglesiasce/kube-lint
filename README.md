@@ -71,7 +71,9 @@ operators are `equal`, `notequal`, `set`, `unset`. For `float64` type, the avail
 
 ## Running kube-lint
 Once installed you can run kube-lint from this directory as follows:
+```
 kube-lint pods --config example/config.yaml
+```
 
 To change the rules edit `example/config.yaml`. You rulebender you.
 
