@@ -21,7 +21,7 @@ go install github.com/viglesiasce/kube-lint
 ```
 
 ## Rule configuration
-The rule configuration file is a YAML formatted list of KubernetesRules. An example config file is 
+The rule configuration file is a YAML formatted list of [KubernetesRules](https://github.com/viglesiasce/kube-lint/blob/master/pkg/rules/rules.go#L44). An example config file is 
 available at `example/config.yaml` in this repository.
 
 A KubernetesRule has the following format:
