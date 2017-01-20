@@ -16,8 +16,22 @@ Additionally you can use kube-lint to audit against a running set of resources i
 ***Only Pod linting is currently implemented***
 
 ## Installation
+
+- Download a release from the [releases page](https://github.com/viglesiasce/kube-lint/releases/) that matches your platform.
+- Extract the archive
+
+### For MacOS
 ```
-go install github.com/viglesiasce/kube-lint
+wget https://github.com/viglesiasce/kube-lint/releases/download/v0.0.1-prototype/kube-lint-prototype-darwin.tgz
+tar zxfv kube-lint-prototype-darwin.tgz
+./darwin/kube-lint -h
+```
+
+### For Linux
+```
+wget https://github.com/viglesiasce/kube-lint/releases/download/v0.0.1-prototype/kube-lint-prototype-linux.tgz
+tar zxfv kube-lint-prototype-linux.tgz
+./linux/kube-lint -h
 ```
 
 ## Rule configuration
