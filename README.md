@@ -70,12 +70,25 @@ operators are `equal`, `notequal`, `set`, `unset`. For `float64` type, the avail
 `tags` is a list of strings that can be used to decide whether to run this rule or not via the CLI. 
 
 ## Running kube-lint
+
+### Basic operation
 Once installed you can run kube-lint from this directory as follows:
 ```
 kube-lint pods --config example/config.yaml
 ```
 
 To change the rules edit `example/config.yaml`. You rulebender you.
+
+### Filtering rules by tag
+You can evaluate a subset of rules by filtering down to only those that include certain tags. For example:
+```
+kube-lint pods --config example/config.yaml --tags security,operations
+```
+### Filtering resources by namespace
+You can also filter which resources are evaluated by passing the `--namespace` flag as follows:
+```
+kube-lint pods --config example/config.yaml --namespace kube-system
+```
 
 ## TODO if this seems like a reasonable approach to pursue
 - Replace `panic` everywhere with proper error handling
