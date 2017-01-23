@@ -1,0 +1,50 @@
+- name: unpriveleged
+  description: Does not use security context priveleged
+  kind: Pod
+  field: .spec.containers[*].securityContext.privileged
+  operator: unset
+  tags:
+  - security
+- name: no-host-network
+  description: hostNetwork namespace
+  kind: Pod
+  field: .spec.hostNetwork
+  operator: unset
+  tags:
+  - security
+- name: app-label
+  description: Includes a label with key "app"
+  kind: Pod
+  field: .metadata.labels.app
+  operator: set
+  valueType: string
+  tags:
+  - operations
+  - security
+- name: redis-port
+  description: Uses the redis containerPort
+  kind: Pod
+  field: .spec.containers[*].ports[*].containerPort
+  operator: equal
+  valueType: float64
+  value: 6379
+  tags:
+  - operations
+  - security
+- name: name-regex
+  description: Includes a name with cd-
+  kind: Pod
+  field: .metadata.name
+  operator: matches
+  value: "cd-.*"
+  valueType: string
+  tags:
+  - operations
+- name: limit-set
+  description: Has resource requests set
+  kind: Pod
+  field: .spec.containers[0].resources.requests.cpu
+  operator: set
+  valueType: string
+  tags:
+  - performance
