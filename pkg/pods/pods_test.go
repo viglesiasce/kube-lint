@@ -38,7 +38,7 @@ func TestGetPodsFromServer(t *testing.T) {
 		want []v1.Pod
 	}{}
 	for _, tt := range tests {
-		if got := NewKubeServer(tt.args.kubeconfig).GetPods(); !reflect.DeepEqual(got, tt.want) {
+		if got := NewKubeServer(tt.args.kubeconfig).GetPods(""); !reflect.DeepEqual(got, tt.want) {
 			t.Errorf("%q. GetPodsFromServer() = %v, want %v", tt.name, got, tt.want)
 		}
 	}
@@ -48,7 +48,7 @@ func TestGetPodsFromFile(t *testing.T) {
 	type args struct {
 		filename string
 	}
-	examplePodFile := "/Users/viglesias/Dropbox/go/src/github.com/viglesiasce/kube-lint/example/pod.yaml"
+	examplePodFile := "../../example/pod.yaml"
 	examplePod := v1.Pod{}
 	podBytes, err := ioutil.ReadFile(examplePodFile)
 	if err != nil {
@@ -92,9 +92,9 @@ func TestCreateTable(t *testing.T) {
 
 func TestEvaluateRules(t *testing.T) {
 	type args struct {
-		table   *tablewriter.Table
 		config  rules.LinterConfig
 		pods    []v1.Pod
+		tags    []string
 		showAll bool
 	}
 	tests := []struct {
@@ -104,6 +104,6 @@ func TestEvaluateRules(t *testing.T) {
 	// TODO: Add test cases.
 	}
 	for _, tt := range tests {
-		EvaluateRules(tt.args.table, tt.args.config, tt.args.pods, tt.args.showAll)
+		EvaluateRules(tt.args.config, tt.args.pods, tt.args.tags, tt.args.showAll)
 	}
 }
