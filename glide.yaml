@@ -6,12 +6,6 @@ import:
 - package: github.com/olekukonko/tablewriter
 - package: github.com/spf13/cobra
 - package: github.com/spf13/viper
-- package: github.com/viglesiasce/kube-lint
-  version: ^0.0.1-prototype
-  subpackages:
-  - cmd
-  - pkg/pods
-  - pkg/rules
 - package: k8s.io/client-go
   version: ^2.0.0-alpha.1
   subpackages:
