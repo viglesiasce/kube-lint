@@ -58,13 +58,13 @@ var podsCmd = &cobra.Command{
 		}
 
 		inputPods := []v1.Pod{}
-		if kubeconfig != "" {
-			inputPods = pods.NewKubeServer(kubeconfig).GetPods(namespace)
-		} else if filename != "" {
+		if filename != "" {
+			fmt.Println("Getting pods for", filename)
 			inputPods = pods.NewLocalFilesystem(filename).GetPods()
 		} else {
-			fmt.Println("[ERROR] --filename or --kubeconfig required")
-			os.Exit(1)
+			// kubeconfig has a default value so will always be populated
+			fmt.Println("Getting pods for", kubeconfig)
+			inputPods = pods.NewKubeServer(kubeconfig).GetPods(namespace)
 		}
 
 		if len(inputPods) == 0 {
