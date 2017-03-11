@@ -3,4 +3,8 @@ language: go
 go:
   - 1.7.x
 
+install:
+  - go install github.com/Masterminds/glide
+  - glide install
+
 script: go test
