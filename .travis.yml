@@ -4,7 +4,8 @@ go:
   - 1.7.x
 
 install:
-  - go install github.com/Masterminds/glide
+  - go get -v github.com/Masterminds/glide
+  - go install -v github.com/Masterminds/glide
   - glide install
 
 script: go test
