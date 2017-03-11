@@ -3,4 +3,4 @@ language: go
 go:
   - 1.7.x
 
-script: make test
+script: go test
