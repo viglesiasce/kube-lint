@@ -1,11 +1,9 @@
 language: go
 
 go:
-  - 1.7.x
+  - 1.x
 
 install:
-  - go get -v github.com/Masterminds/glide
-  - go install -v github.com/Masterminds/glide
-  - glide install
+  - go mod vendor
 
 script: go test ./pkg/... ./cmd/...
