@@ -1,4 +1,3 @@
 /.GOPATH
 /bin
 kube-lint
-vendor
