@@ -1,8 +1,12 @@
 steps:
 - name: golang:1
+  waitFor: ['-']
   entrypoint: bash
   args:
   - "-c"
   - |
-    go mod vendor
     go test ./pkg/... ./cmd/...
+- name: gcr.io/kaniko-project/executor:latest
+  waitFor: ['-']
+  args: ['--destination=gcr.io/$PROJECT_ID/kube-lint',
+         '--cache=true']
