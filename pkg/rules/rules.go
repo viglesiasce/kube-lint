@@ -143,9 +143,9 @@ func (kr KubernetesRule) evaluateAsBool(value bool) (bool, bool) {
 	case "notequal":
 		passed = value != kr.Value.(bool)
 	case "set":
-		passed = value == true
+		passed = value
 	case "unset":
-		passed = value == false
+		passed = !value
 	default:
 		panic("Operator not implemented for boolean type: " + kr.Operator)
 	}
