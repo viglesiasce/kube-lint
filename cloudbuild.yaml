@@ -1,0 +1,8 @@
+steps:
+- name: golang:1
+  entrypoint: bash
+  args:
+  - "-c"
+  - |
+    go mod vendor
+    go test ./pkg/... ./cmd/...
