@@ -17,9 +17,9 @@ github.com/coreos/go-oidc/oidc
 github.com/coreos/pkg/health
 github.com/coreos/pkg/httputil
 github.com/coreos/pkg/timeutil
-# github.com/davecgh/go-spew v0.0.0-20151105211317-5215b55f46b2
+# github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
-# github.com/docker/distribution v2.6.0-rc.1.0.20170303212246-08b06dc02367+incompatible
+# github.com/docker/distribution v2.8.0+incompatible
 github.com/docker/distribution/digestset
 github.com/docker/distribution/reference
 # github.com/emicklei/go-restful v1.1.4-0.20160814184150-89ef8af493ab
@@ -28,7 +28,7 @@ github.com/emicklei/go-restful/log
 github.com/emicklei/go-restful/swagger
 # github.com/fatih/color v1.4.1
 github.com/fatih/color
-# github.com/fsnotify/fsnotify v1.4.3-0.20170302034209-7d7316ed6e1e
+# github.com/fsnotify/fsnotify v1.4.7
 github.com/fsnotify/fsnotify
 # github.com/ghodss/yaml v0.0.0-20150909031657-73d445a93680
 github.com/ghodss/yaml
@@ -40,14 +40,14 @@ github.com/go-openapi/jsonreference
 github.com/go-openapi/spec
 # github.com/go-openapi/swag v0.0.0-20160704191624-1d0bd113de87
 github.com/go-openapi/swag
-# github.com/gogo/protobuf v0.0.0-20160718161353-e18d7aa8f8c6
+# github.com/gogo/protobuf v1.2.2-0.20190723190241-65acae22fc9d
 github.com/gogo/protobuf/proto
 github.com/gogo/protobuf/sortkeys
 # github.com/golang/glog v0.0.0-20141105023935-44145f04b68c
 github.com/golang/glog
-# github.com/golang/protobuf v0.0.0-20160608215545-8616e8ee5e20
+# github.com/golang/protobuf v1.3.2
 github.com/golang/protobuf/proto
-# github.com/google/gofuzz v0.0.0-20150304233714-bbcb9da2d746
+# github.com/google/gofuzz v1.0.0
 github.com/google/gofuzz
 # github.com/hashicorp/hcl v0.0.0-20170217164738-630949a3c5fa
 github.com/hashicorp/hcl
@@ -102,31 +102,35 @@ github.com/spf13/cast
 github.com/spf13/cobra
 # github.com/spf13/jwalterweatherman v0.0.0-20170109133355-fa7ca7e836cf
 github.com/spf13/jwalterweatherman
-# github.com/spf13/pflag v0.0.0-20161024131444-5ccb023bc27d
+# github.com/spf13/pflag v1.0.5
 github.com/spf13/pflag
 # github.com/spf13/viper v0.0.0-20170217163817-7538d73b4eb9
 github.com/spf13/viper
 # github.com/ugorji/go v0.0.0-20151028022000-f1f1a805ed36
 github.com/ugorji/go/codec
-# golang.org/x/crypto v0.0.0-20160126184038-1f22c0103821
+# golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
 golang.org/x/crypto/ssh/terminal
-# golang.org/x/net v0.0.0-20160715184138-e90d6d0afc4c
+# golang.org/x/net v0.0.0-20191004110552-13f9640d40b9
 golang.org/x/net/context
 golang.org/x/net/context/ctxhttp
+golang.org/x/net/http/httpguts
 golang.org/x/net/http2
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
-golang.org/x/net/lex/httplex
 # golang.org/x/oauth2 v0.0.0-20160902055913-3c3a985cb79f
 golang.org/x/oauth2
 golang.org/x/oauth2/google
 golang.org/x/oauth2/internal
 golang.org/x/oauth2/jws
 golang.org/x/oauth2/jwt
-# golang.org/x/sys v0.0.0-20160916181909-8f0908ab3b24
+# golang.org/x/sys v0.0.0-20190826190057-c7b8b68b1456
 golang.org/x/sys/unix
-# golang.org/x/text v0.0.0-20160726164857-2910a502d2bf
+golang.org/x/sys/windows
+# golang.org/x/text v0.3.2
 golang.org/x/text/cases
+golang.org/x/text/internal
+golang.org/x/text/internal/language
+golang.org/x/text/internal/language/compact
 golang.org/x/text/internal/tag
 golang.org/x/text/language
 golang.org/x/text/runes
@@ -147,9 +151,9 @@ google.golang.org/appengine/internal/modules
 google.golang.org/appengine/internal/remote_api
 google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/urlfetch
-# gopkg.in/inf.v0 v0.9.0
+# gopkg.in/inf.v0 v0.9.1
 gopkg.in/inf.v0
-# gopkg.in/yaml.v2 v2.0.0-20150924142314-53feefa2559f
+# gopkg.in/yaml.v2 v2.2.8
 gopkg.in/yaml.v2
 # k8s.io/client-go v2.0.0+incompatible
 k8s.io/client-go/discovery
