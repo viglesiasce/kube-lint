@@ -3,19 +3,19 @@
 //
 // Grammar
 //
-// 	reference                       := name [ ":" tag ] [ "@" digest ]
+//	reference                       := name [ ":" tag ] [ "@" digest ]
 //	name                            := [domain '/'] path-component ['/' path-component]*
 //	domain                          := domain-component ['.' domain-component]* [':' port-number]
 //	domain-component                := /([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])/
 //	port-number                     := /[0-9]+/
 //	path-component                  := alpha-numeric [separator alpha-numeric]*
-// 	alpha-numeric                   := /[a-z0-9]+/
+//	alpha-numeric                   := /[a-z0-9]+/
 //	separator                       := /[_.]|__|[-]*/
 //
 //	tag                             := /[\w][\w.-]{0,127}/
 //
 //	digest                          := digest-algorithm ":" digest-hex
-//	digest-algorithm                := digest-algorithm-component [ digest-algorithm-separator digest-algorithm-component ]
+//	digest-algorithm                := digest-algorithm-component [ digest-algorithm-separator digest-algorithm-component ]*
 //	digest-algorithm-separator      := /[+.-_]/
 //	digest-algorithm-component      := /[A-Za-z][A-Za-z0-9]*/
 //	digest-hex                      := /[0-9a-fA-F]{32,}/ ; At least 128 bit digest value
@@ -205,7 +205,7 @@ func Parse(s string) (Reference, error) {
 	var repo repository
 
 	nameMatch := anchoredNameRegexp.FindStringSubmatch(matches[1])
-	if nameMatch != nil && len(nameMatch) == 3 {
+	if len(nameMatch) == 3 {
 		repo.domain = nameMatch[1]
 		repo.path = nameMatch[2]
 	} else {
